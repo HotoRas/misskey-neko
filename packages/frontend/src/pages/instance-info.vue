@@ -269,16 +269,13 @@ function refreshUserData(): void {
 		text: "This action will refresh all the federated user data within this server. This takes time, and server may suffer during the work.",
 	}).then(({ canceled }) => {
 		if (canceled) return;
-		let targetUsers: Misskey.entities.UserDetailedNotMe[] = [];
+		let targetUsers: Misskey.entities.UserLite[] = [];
 		while (true) {
-			let fetchRes: Misskey.entities.UserDetailedNotMe[] = [];
+			let fetchRes: Misskey.entities.UserLite[] = [];
 			misskeyApi('admin/show-users', {
 				limit: 30,
 				offset: targetUsers.length,
-			}).then((res) => {fetchRes = res;}, () => {
-				return os.alert({
-					type: 'error',
-					text: 'User fetch failed',
+			}).then((res) => { fetchRes = res; }
 				});
 			});
 
@@ -291,11 +288,13 @@ function refreshUserData(): void {
 				userId: user.id,
 			});
 		});
-
+/*
+// Be quiet!
 		return os.alert({
 			type: 'info',
 			text: 'User data update success',
-		})
+		});
+*/
 	});
 }
 
