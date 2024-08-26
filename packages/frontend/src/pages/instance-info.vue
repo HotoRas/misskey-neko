@@ -49,6 +49,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<MkSwitch v-model="isSilenced" :disabled="!meta || !instance" @update:modelValue="toggleSilenced">{{ i18n.ts.silenceThisInstance }}</MkSwitch>
 						<MkSwitch v-model="isMediaSilenced" :disabled="!meta || !instance" @update:modelValue="toggleMediaSilenced">{{ i18n.ts.mediaSilenceThisInstance }}</MkSwitch>
 						<MkButton @click="refreshMetadata"><i class="ti ti-refresh"></i> Refresh metadata</MkButton>
+						<MkButton danger @click="refreshUserData"><i class="ti ti-refresh"></i> Force sync user data of the server</MkButton>
 						<MkTextarea v-model="moderationNote" manualSave>
 							<template #label>{{ i18n.ts.moderationNote }}</template>
 						</MkTextarea>
@@ -184,6 +185,7 @@ const usersPagination = {
 };
 
 watch(moderationNote, async () => {
+	if (!(instance.value)) return;
 	await misskeyApi('admin/federation/update-instance', { host: instance.value.host, moderationNote: moderationNote.value });
 });
 
@@ -256,6 +258,44 @@ function refreshMetadata(): void {
 	});
 	os.alert({
 		text: 'Refresh requested',
+	});
+}
+
+function refreshUserData(): void {
+	if(!instance.value) throw new Error('No instance?');
+
+	os.confirm({
+		type: 'warning',
+		text: "This action will refresh all the federated user data within this server. This takes time, and server may suffer during the work.",
+	}).then(({ canceled }) => {
+		if (canceled) return;
+		let targetUsers: Misskey.entities.UserDetailedNotMe[] = [];
+		while (true) {
+			let fetchRes: Misskey.entities.UserDetailedNotMe[] = [];
+			misskeyApi('admin/show-users', {
+				limit: 30,
+				offset: targetUsers.length,
+			}).then((res) => {fetchRes = res;}, () => {
+				return os.alert({
+					type: 'error',
+					text: 'User fetch failed',
+				});
+			});
+
+			if (fetchRes.length == 0) break;
+			targetUsers = targetUsers.concat(fetchRes);
+		}
+
+		targetUsers.forEach((user) => {
+			misskeyApi('federation/update-remote-user', {
+				userId: user.id,
+			});
+		});
+
+		return os.alert({
+			type: 'info',
+			text: 'User data update success',
+		})
 	});
 }
 
