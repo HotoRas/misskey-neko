@@ -65,7 +65,7 @@ function buildDts() {
 		{
 			stdout: process.stdout,
 			stderr: process.stderr,
-		}
+		},
 	);
 }
 
