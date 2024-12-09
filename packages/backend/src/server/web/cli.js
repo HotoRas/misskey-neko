@@ -40,11 +40,21 @@ window.onload = async () => {
 	};
 
 	document.getElementById('submit').addEventListener('click', () => {
+		let _cw = document.getElementById('cw').value;
+		let _localonly = document.getElementById('localonly').checked;
+		let _tl = document.getElementById('tlset').value;
 		api('notes/create', {
+			cw: _cw ?? '',
+			localOnly: _localonly,
+			visibility: _tl,
 			text: document.getElementById('text').value
 		}).then(() => {
 			location.reload();
 		});
+	});
+
+	document.getElementById('refresh').addEventListener('click', () => {
+		location.reload();
 	});
 
 	api('notes/timeline').then(notes => {

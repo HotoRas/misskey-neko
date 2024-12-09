@@ -15,7 +15,23 @@ html
 		header
 			h1 Misskey Cli #{version}
 		main
+			div#control
+				button#refresh
+					a(href='.') refresh timeline
+				a(class='button', href='/') return to normal
 			div#form
+				select#tlset(size=4)
+					option(value='public', selected) public
+					option(value='home') home
+					option(value='followers') followers
+					option(value='selected', disabled) selected
+				input#localonly(type='checkbox') local timeline only
+				br
+				p send to
+					input#to(type='text' disabled)
+				p summary
+					input#cw(type='text')
+				br
 				textarea#text
 				button#submit submit
 			div#tl
