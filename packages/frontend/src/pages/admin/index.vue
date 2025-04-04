@@ -35,13 +35,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 import { onActivated, onMounted, onUnmounted, provide, watch, ref, computed } from 'vue';
 import { i18n } from '@/i18n.js';
 import MkSuperMenu from '@/components/MkSuperMenu.vue';
+import type { SuperMenuDef } from '@/components/MkSuperMenu.vue';
 import MkInfo from '@/components/MkInfo.vue';
 import { instance } from '@/instance.js';
 import { lookup } from '@/scripts/lookup.js';
 import * as os from '@/os.js';
 import { misskeyApi } from '@/scripts/misskey-api.js';
 import { lookupUser, lookupUserByEmail, lookupFile } from '@/scripts/admin-lookup.js';
-import { PageMetadata, definePageMetadata, provideMetadataReceiver, provideReactiveMetadata } from '@/scripts/page-metadata.js';
+import { definePageMetadata, provideMetadataReceiver, provideReactiveMetadata } from '@/scripts/page-metadata.js';
+import type { PageMetadata } from '@/scripts/page-metadata.js';
 import { useRouter } from '@/router/supplier.js';
 
 const isEmpty = (x: string | null) => x == null || x === '';
@@ -56,7 +58,7 @@ const indexInfo = {
 
 provide('shouldOmitHeaderTitle', false);
 
-const INFO = ref(indexInfo);
+const INFO = ref<PageMetadata>(indexInfo);
 const childInfo = ref<null | PageMetadata>(null);
 const narrow = ref(false);
 const view = ref(null);
@@ -78,11 +80,11 @@ misskeyApi('admin/abuse-user-reports', {
 });
 
 misskeyApi('admin/show-users', {
-	state: 'waitingForApproval',
+	state: 'pending',
 	origin: 'local',
 	limit: 1,
-}).then(approvals => {
-	if (approvals.length > 0) pendingUserApprovals.value = true;
+}).then(pendings => {
+	if (pendings.length > 0) pendingUserApprovals.value = true;
 });
 
 const NARROW_THRESHOLD = 600;
@@ -91,7 +93,7 @@ const ro = new ResizeObserver((entries, observer) => {
 	narrow.value = entries[0].borderBoxSize[0].inlineSize < NARROW_THRESHOLD;
 });
 
-const menuDef = computed(() => [{
+const menuDef = computed<SuperMenuDef[]>(() => [{
 	title: i18n.ts.quickAction,
 	items: [{
 		type: 'button',
@@ -99,7 +101,7 @@ const menuDef = computed(() => [{
 		text: i18n.ts.lookup,
 		action: adminLookup,
 	}, ...(instance.disableRegistration ? [{
-		type: 'button',
+		type: 'button' as const,
 		icon: 'ti ti-user-plus',
 		text: i18n.ts.createInviteCode,
 		action: invite,
@@ -136,6 +138,11 @@ const menuDef = computed(() => [{
 		text: i18n.ts.customEmojis,
 		to: '/admin/emojis',
 		active: currentPage.value?.route.name === 'emojis',
+	}, {
+		icon: 'ti ti-icons',
+		text: i18n.ts.customEmojis + '(beta)',
+		to: '/admin/emojis2',
+		active: currentPage.value?.route.name === 'emojis2',
 	}, {
 		icon: 'ti ti-sparkles',
 		text: i18n.ts.avatarDecorations,
@@ -343,12 +350,14 @@ defineExpose({
 		height: 100%;
 
 		> .nav {
+			position: sticky;
+			top: 0;
 			width: 32%;
 			max-width: 280px;
 			box-sizing: border-box;
 			border-right: solid 0.5px var(--MI_THEME-divider);
 			overflow: auto;
-			height: 100%;
+			height: 100dvh;
 		}
 
 		> .main {

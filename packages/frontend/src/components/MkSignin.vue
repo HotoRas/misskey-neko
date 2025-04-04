@@ -77,7 +77,8 @@ import { i18n } from '@/i18n.js';
 import * as os from '@/os.js';
 
 import XInput from '@/components/MkSignin.input.vue';
-import XPassword, { type PwResponse } from '@/components/MkSignin.password.vue';
+import XPassword from '@/components/MkSignin.password.vue';
+import type { PwResponse } from '@/components/MkSignin.password.vue';
 import XTotp from '@/components/MkSignin.totp.vue';
 import XPasskey from '@/components/MkSignin.passkey.vue';
 
@@ -140,6 +141,7 @@ function onPasskeyDone(credential: AuthenticationPublicKeyCredential): void {
 				return;
 			}
 			emit('login', res.signinResponse);
+			onLoginSucceeded(res.signinResponse);
 		}).catch(onSigninApiError);
 	} else if (userInfo.value != null) {
 		tryLogin({
@@ -282,7 +284,7 @@ async function onLoginSucceeded(res: Misskey.entities.SigninFlowResponse & { fin
 	}
 }
 
-function onSigninApiError(err?: Misskey.entities.Error): void {
+function onSigninApiError(err?: any): void {
 	const id = err?.id ?? null;
 
 	switch (id) {
@@ -308,7 +310,7 @@ function onSigninApiError(err?: Misskey.entities.Error): void {
 		}
 		case '2fe70810-0ed2-47db-a70b-dc3ecbf5f069': {
 			os.alert({
-				type: 'info', // Not approved is not user's fault nor error: set error type as 'info'
+				type: 'error',
 				title: i18n.ts.loginFailed,
 				text: i18n.ts.registerHasNotBeenApprovedYet,
 			});

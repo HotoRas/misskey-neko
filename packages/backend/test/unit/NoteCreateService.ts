@@ -60,10 +60,7 @@ describe('NoteCreateService', () => {
 			replyUserHost: null,
 			renoteUserId: null,
 			renoteUserHost: null,
-			createdAt: new Date(),
 			updatedAt: null,
-			updatedAtHistory: [],
-			noteEditHistory: [],
 		};
 
 		const poll: IPoll = {
@@ -102,6 +99,7 @@ describe('NoteCreateService', () => {
 			isLink: false,
 			requestHeaders: null,
 			requestIp: null,
+			cachedAt: null,
 		};
 
 		test('note without renote should not be Renote', () => {

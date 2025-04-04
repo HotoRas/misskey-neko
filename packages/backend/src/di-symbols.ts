@@ -74,6 +74,7 @@ export const DI = {
 	registryItemsRepository: Symbol('registryItemsRepository'),
 	webhooksRepository: Symbol('webhooksRepository'),
 	systemWebhooksRepository: Symbol('systemWebhooksRepository'),
+	systemAccountsRepository: Symbol('systemAccountsRepository'),
 	adsRepository: Symbol('adsRepository'),
 	passwordResetRequestsRepository: Symbol('passwordResetRequestsRepository'),
 	retentionAggregationsRepository: Symbol('retentionAggregationsRepository'),
@@ -84,5 +85,6 @@ export const DI = {
 	userMemosRepository: Symbol('userMemosRepository'),
 	bubbleGameRecordsRepository: Symbol('bubbleGameRecordsRepository'),
 	reversiGamesRepository: Symbol('reversiGamesRepository'),
+	noteHistoryRepository: Symbol('noteHistoryRepository'),
 	//#endregion
 };

@@ -215,7 +215,7 @@ type SerializedAll<T> = {
 
 type UndefinedAsNullAll<T> = {
 	[K in keyof T]: T[K] extends undefined ? null : T[K];
-}
+};
 
 export interface InternalEventTypes {
 	userChangeSuspendedState: { id: MiUser['id']; isSuspended: MiUser['isSuspended']; };
@@ -253,6 +253,7 @@ export interface InternalEventTypes {
 	unmute: { muterId: MiUser['id']; muteeId: MiUser['id']; };
 	userListMemberAdded: { userListId: MiUserList['id']; memberId: MiUser['id']; };
 	userListMemberRemoved: { userListId: MiUserList['id']; memberId: MiUser['id']; };
+	remoteFileCacheMiss: { fileId: MiDriveFile['id']; }
 }
 
 type EventTypesToEventPayload<T> = EventUnionFromDictionary<UndefinedAsNullAll<SerializedAll<T>>>;

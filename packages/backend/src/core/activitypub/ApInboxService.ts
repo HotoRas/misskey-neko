@@ -313,12 +313,17 @@ export class ApInboxService {
 		// アナウンス先が許可されているかチェック
 		if (!this.utilityService.isFederationAllowedUri(uri)) return;
 
+		const relays = await this.relayService.getAcceptedRelays();
+		const fromRelay = !!actor.inbox && relays.map(r => r.inbox).includes(actor.inbox);
+		const targetUri = getApId(activity.object);
+
 		const unlock = await this.appLockService.getApLock(uri);
 
 		try {
 			// 既に同じURIを持つものが登録されていないかチェック
-			const exist = await this.apNoteService.fetchNote(uri);
+			const exist = await this.apNoteService.fetchNote(fromRelay ? targetUri : uri);
 			if (exist) {
+				this.logger.info(`Skip existing Note announce (fromRelay: ${fromRelay}, uri:${ fromRelay ? targetUri : uri})`);
 				return;
 			}
 
@@ -340,6 +345,12 @@ export class ApInboxService {
 
 			if (!await this.noteEntityService.isVisibleForMe(renote, actor.id)) {
 				return 'skip: invalid actor for this activity';
+			}
+
+			if (fromRelay) {
+				const noteObj = await this.noteEntityService.pack(renote, null, { skipHide: true });
+				this.globalEventService.publishNotesStream(noteObj);
+				return;
 			}
 
 			this.logger.info(`Creating the (Re)Note: ${uri}`);
@@ -509,18 +520,11 @@ export class ApInboxService {
 			return `skip: delete actor ${actor.uri} !== ${uri}`;
 		}
 
-		const user = await this.usersRepository.findOneBy({ id: actor.id });
-		if (user == null) {
-			return 'skip: actor not found';
-		} else if (user.isDeleted) {
-			return 'skip: already deleted';
+		if (!(await this.usersRepository.update({ id: actor.id, isDeleted: false }, { isDeleted: true })).affected) {
+			return 'skip: already deleted or actor not found';
 		}
 
 		const job = await this.queueService.createDeleteAccountJob(actor);
-
-		await this.usersRepository.update(actor.id, {
-			isDeleted: true,
-		});
 
 		this.globalEventService.publishInternalEvent('remoteUserUpdated', { id: actor.id });
 

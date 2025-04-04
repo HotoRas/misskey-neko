@@ -19,17 +19,8 @@ export const packedNoteSchema = {
 		},
 		updatedAt: {
 			type: 'string',
-			optional: true, nullable: false,
+			optional: true, nullable: true,
 			format: 'date-time',
-		},
-		updatedAtHistory: {
-			type: 'array',
-			optional: true, nullable: false,
-			items: {
-				type: 'string',
-				optional: false, nullable: false,
-				format: 'date-time',
-			},
 		},
 		deletedAt: {
 			type: 'string',
@@ -39,14 +30,6 @@ export const packedNoteSchema = {
 		text: {
 			type: 'string',
 			optional: false, nullable: true,
-		},
-		noteEditHistory: {
-			type: 'array',
-			optional: true, nullable: false,
-			items: {
-				type: 'string',
-				optional: false, nullable: true,
-			},
 		},
 		cw: {
 			type: 'string',

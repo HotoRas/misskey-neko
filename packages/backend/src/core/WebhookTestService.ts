@@ -73,13 +73,14 @@ function generateDummyUser(override?: Partial<MiUser>): MiUser {
 		isLocked: false,
 		isBot: false,
 		isCat: true,
-		isRoot: false,
 		isExplorable: true,
 		isHibernated: false,
 		isDeleted: false,
 		requireSigninToViewContents: false,
 		makeNotesFollowersOnlyBefore: null,
 		makeNotesHiddenBefore: null,
+		approved: true,
+		signupReason: '',
 		emojis: [],
 		score: 0,
 		host: null,
@@ -89,8 +90,6 @@ function generateDummyUser(override?: Partial<MiUser>): MiUser {
 		uri: null,
 		followersUri: null,
 		token: null,
-		approved: override?.approved ?? false,
-		signupReason: override?.signupReason ?? null,
 		...override,
 	};
 }
@@ -133,10 +132,7 @@ function generateDummyNote(override?: Partial<MiNote>): MiNote {
 		replyUserHost: null,
 		renoteUserId: null,
 		renoteUserHost: null,
-		createdAt: new Date(),
-		updatedAt: null,
-		updatedAtHistory: null,
-		noteEditHistory: [],
+		updatedAt: new Date(),
 		...override,
 	};
 }
@@ -201,10 +197,10 @@ function toPackedUserLite(user: MiUser, override?: Packed<'UserLite'>): Packed<'
 		})),
 		isBot: user.isBot,
 		isCat: user.isCat,
+		approved: user.approved,
 		emojis: user.emojis,
 		onlineStatus: 'active',
 		badgeRoles: [],
-		approved: override?.approved ?? false,
 		...override,
 	};
 }

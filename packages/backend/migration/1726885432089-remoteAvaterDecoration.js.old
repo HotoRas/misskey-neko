@@ -1,0 +1,20 @@
+/*
+ * SPDX-FileCopyrightText: syuilo and misskey-project
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
+export class RemoteAvaterDecoration1726885432089 {
+		name = 'RemoteAvaterDecoration1726885432089'
+
+    async up(queryRunner) {
+			return;
+			//queryRunner.query(`ALTER TABLE "avatar_decoration" ADD IF NOT EXISTS "remoteId" varchar(32)`);//exist
+			//queryRunner.query(`ALTER TABLE "avatar_decoration" ADD "host" varchar(128)`);//exist
+    }
+
+    async down(queryRunner) {
+			return;
+			//queryRunner.query(`ALTER TABLE "avatar_decoration" DROP COLUMN "host"`);//existed
+			//queryRunner.query(`ALTER TABLE "avatar_decoration" DROP COLUMN "remoteId"`);//existed
+    }
+}

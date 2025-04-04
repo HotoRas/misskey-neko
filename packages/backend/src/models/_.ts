@@ -56,6 +56,7 @@ import { MiRegistryItem } from '@/models/RegistryItem.js';
 import { MiRelay } from '@/models/Relay.js';
 import { MiSignin } from '@/models/Signin.js';
 import { MiSwSubscription } from '@/models/SwSubscription.js';
+import { MiSystemAccount } from '@/models/SystemAccount.js';
 import { MiUsedUsername } from '@/models/UsedUsername.js';
 import { MiUser } from '@/models/User.js';
 import { MiUserIp } from '@/models/UserIp.js';
@@ -79,6 +80,7 @@ import { MiFlashLike } from '@/models/FlashLike.js';
 import { MiUserListFavorite } from '@/models/UserListFavorite.js';
 import { MiBubbleGameRecord } from '@/models/BubbleGameRecord.js';
 import { MiReversiGame } from '@/models/ReversiGame.js';
+import { NoteHistory } from './NoteHistory.js';
 import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity.js';
 
 export interface MiRepository<T extends ObjectLiteral> {
@@ -171,6 +173,7 @@ export {
 	MiRelay,
 	MiSignin,
 	MiSwSubscription,
+	MiSystemAccount,
 	MiUsedUsername,
 	MiUser,
 	MiUserIp,
@@ -242,6 +245,7 @@ export type RegistryItemsRepository = Repository<MiRegistryItem> & MiRepository<
 export type RelaysRepository = Repository<MiRelay> & MiRepository<MiRelay>;
 export type SigninsRepository = Repository<MiSignin> & MiRepository<MiSignin>;
 export type SwSubscriptionsRepository = Repository<MiSwSubscription> & MiRepository<MiSwSubscription>;
+export type SystemAccountsRepository = Repository<MiSystemAccount> & MiRepository<MiSystemAccount>;
 export type UsedUsernamesRepository = Repository<MiUsedUsername> & MiRepository<MiUsedUsername>;
 export type UsersRepository = Repository<MiUser> & MiRepository<MiUser>;
 export type UserIpsRepository = Repository<MiUserIp> & MiRepository<MiUserIp>;
@@ -265,3 +269,5 @@ export type FlashLikesRepository = Repository<MiFlashLike> & MiRepository<MiFlas
 export type UserMemoRepository = Repository<MiUserMemo> & MiRepository<MiUserMemo>;
 export type BubbleGameRecordsRepository = Repository<MiBubbleGameRecord> & MiRepository<MiBubbleGameRecord>;
 export type ReversiGamesRepository = Repository<MiReversiGame> & MiRepository<MiReversiGame>;
+export type NoteHistoryRepository = Repository<NoteHistory> & MiRepository<NoteHistory>;
+

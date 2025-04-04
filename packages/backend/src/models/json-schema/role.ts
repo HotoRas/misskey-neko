@@ -182,35 +182,7 @@ export const packedRolePoliciesSchema = {
 		},
 		canEditNote: {
 			type: 'boolean',
-			optional: false, nullable: false,
-		},
-		canInitiateConversation: {
-			type: 'boolean',
-			optional: false, nullable: false,
-		},
-		canCreateContent: {
-			type: 'boolean',
-			optional: false, nullable: false,
-		},
-		canUpdateContent: {
-			type: 'boolean',
-			optional: false, nullable: false,
-		},
-		canDeleteContent: {
-			type: 'boolean',
-			optional: false, nullable: false,
-		},
-		canPurgeAccount: {
-			type: 'boolean',
-			optional: false, nullable: false,
-		},
-		canUpdateAvatar: {
-			type: 'boolean',
-			optional: false, nullable: false,
-		},
-		canUpdateBanner: {
-			type: 'boolean',
-			optional: false, nullable: false,
+			optional: false, nullable: true,
 		},
 		mentionLimit: {
 			type: 'integer',

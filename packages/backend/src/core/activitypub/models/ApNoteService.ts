@@ -6,7 +6,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { In } from 'typeorm';
 import { DI } from '@/di-symbols.js';
-import type { NotesRepository, PollsRepository, EmojisRepository, MiMeta } from '@/models/_.js';
+import type { PollsRepository, EmojisRepository, MiMeta, NotesRepository } from '@/models/_.js';
 import type { Config } from '@/config.js';
 import type { MiRemoteUser } from '@/models/User.js';
 import type { MiNote } from '@/models/Note.js';
@@ -159,14 +159,8 @@ export class ApNoteService {
 
 		const url = getOneApHrefNullable(note.url);
 
-		if (url != null) {
-			if (!checkHttps(url)) {
-				throw new Error('unexpected schema of note url: ' + url);
-			}
-
-			if (this.utilityService.punyHost(url) !== this.utilityService.punyHost(note.id)) {
-				throw new Error(`note url & uri host mismatch: note url: ${url}, note uri: ${note.id}`);
-			}
+		if (url && !checkHttps(url)) {
+			throw new Error('unexpected schema of note url: ' + url);
 		}
 
 		this.logger.info(`Creating the Note: ${note.id}`);
@@ -180,7 +174,7 @@ export class ApNoteService {
 
 		// ローカルで投稿者を検索し、もし凍結されていたらスキップ
 		// eslint-disable-next-line no-param-reassign
-		actor ??= await this.apPersonService.fetchPerson(uri) as (MiRemoteUser | undefined);
+		actor ??= await this.apPersonService.fetchPerson(uri) as MiRemoteUser | undefined;
 		if (actor && actor.isSuspended) {
 			throw new IdentifiableError('85ab9bd7-3a41-4530-959d-f07073900109', 'actor has been suspended');
 		}
@@ -503,6 +497,8 @@ export class ApNoteService {
 						originalUrl: tag.icon.url,
 						publicUrl: tag.icon.url,
 						updatedAt: new Date(),
+						// _misskey_license が存在しなければ `null`
+						license: (tag._misskey_license?.freeText ?? null)
 					});
 
 					const emoji = await this.emojisRepository.findOneBy({ host, name });
@@ -524,6 +520,8 @@ export class ApNoteService {
 				publicUrl: tag.icon.url,
 				updatedAt: new Date(),
 				aliases: [],
+				// _misskey_license が存在しなければ `null`
+				license: (tag._misskey_license?.freeText ?? null)
 			});
 		}));
 	}

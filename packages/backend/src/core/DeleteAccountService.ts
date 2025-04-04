@@ -5,7 +5,7 @@
 
 import { Inject, Injectable } from '@nestjs/common';
 import { Not, IsNull } from 'typeorm';
-import type { FollowingsRepository, MiUser, UsersRepository } from '@/models/_.js';
+import type { FollowingsRepository, MiMeta, MiUser, UsersRepository } from '@/models/_.js';
 import { QueueService } from '@/core/QueueService.js';
 import { DI } from '@/di-symbols.js';
 import { bindThis } from '@/decorators.js';
@@ -13,10 +13,14 @@ import { GlobalEventService } from '@/core/GlobalEventService.js';
 import { UserEntityService } from '@/core/entities/UserEntityService.js';
 import { ApRendererService } from '@/core/activitypub/ApRendererService.js';
 import { ModerationLogService } from '@/core/ModerationLogService.js';
+import { SystemAccountService } from '@/core/SystemAccountService.js';
 
 @Injectable()
 export class DeleteAccountService {
 	constructor(
+		@Inject(DI.meta)
+		private meta: MiMeta,
+
 		@Inject(DI.usersRepository)
 		private usersRepository: UsersRepository,
 
@@ -28,6 +32,7 @@ export class DeleteAccountService {
 		private queueService: QueueService,
 		private globalEventService: GlobalEventService,
 		private moderationLogService: ModerationLogService,
+		private systemAccountService: SystemAccountService,
 	) {
 	}
 
@@ -36,8 +41,13 @@ export class DeleteAccountService {
 		id: string;
 		host: string | null;
 	}, moderator?: MiUser): Promise<void> {
+		if (this.meta.rootUserId === user.id) throw new Error('cannot delete a root account');
+
 		const _user = await this.usersRepository.findOneByOrFail({ id: user.id });
-		if (_user.isRoot) throw new Error('cannot delete a root account');
+
+		if (user.host === null && _user.username.includes('.')) {
+			throw new Error('cannot delete a system account');
+		}
 
 		if (moderator != null) {
 			this.moderationLogService.log(moderator, 'deleteAccount', {
@@ -53,19 +63,11 @@ export class DeleteAccountService {
 			const content = this.apRendererService.addContext(this.apRendererService.renderDelete(this.userEntityService.genLocalUserUri(user.id), user));
 
 			const queue: string[] = [];
-
-			const followings = await this.followingsRepository.find({
-				where: [
-					{ followerSharedInbox: Not(IsNull()) },
-					{ followeeSharedInbox: Not(IsNull()) },
-				],
-				select: ['followerSharedInbox', 'followeeSharedInbox'],
-			});
-
-			const inboxes = followings.map(x => x.followerSharedInbox ?? x.followeeSharedInbox);
+			
+			const inboxes = await this.usersRepository.query('SELECT DISTINCT "sharedInbox" from "user" AS U INNER JOIN instance AS I ON U.host = I.host WHERE (I."followersCount" > 0 OR I."followingCount" > 0)');
 
 			for (const inbox of inboxes) {
-				if (inbox != null && !queue.includes(inbox)) queue.push(inbox);
+				if (inbox.sharedInbox != null) queue.push(inbox.sharedInbox);
 			}
 
 			for (const inbox of queue) {
